@@ -1,0 +1,39 @@
+{
+	"name": "syncx",
+	"main": "worker.ts",
+	"compatibility_date": "2026-07-03",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	// Serves the Next.js static assets (/_next/static/*: compiled CSS + JS chunks).
+	// OpenNext's worker looks up this binding by the name "ASSETS". Without it,
+	// every static request 404s and the app renders unstyled with no client JS.
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".open-next/assets"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "syncx",
+			// Placeholder UUID for LOCAL dev only.
+			// Replace with the real ID from `wrangler d1 create syncx` before deploying.
+			"database_id": "72b0028b-a35c-440f-a946-1f0fbda51080",
+			// Drizzle outputs migrations here; wrangler d1 migrations apply reads from it.
+			"migrations_dir": "drizzle"
+		},
+		{
+			"binding": "syncx",
+			"database_name": "syncx",
+			"database_id": "72b0028b-a35c-440f-a946-1f0fbda51080",
+			"remote": true
+		}
+	],
+	"triggers": {
+		"crons": [
+			"*/5 * * * *",
+			"0 */6 * * *",
+			"0 16 * * *"
+		]
+	}
+}
