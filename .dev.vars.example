@@ -1,0 +1,12 @@
+GMAIL_USER=your_address@gmail.com
+GMAIL_APP_PASSWORD=your-16-char-app-password
+
+# 32+ chars — used to sign session JWTs. Generate with: openssl rand -base64 48
+SESSION_SECRET=replace-with-a-long-random-secret-string-of-at-least-32-chars
+
+# base64url 32-byte key for AES-256-GCM credential encryption.
+# Generate with: openssl rand -base64 32 | tr '+/' '-_' | tr -d '='
+CRED_ENC_KEY=replace-with-base64url-32-byte-key
+
+# TMDB API read access token (https://www.themoviedb.org/settings/api -> "API Read Access Token")
+TMDB_ACCESS_TOKEN=
