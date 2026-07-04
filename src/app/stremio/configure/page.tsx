@@ -1,14 +1,17 @@
 import Link from "next/link";
-import { Zap, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import StremioLoginForm from "./login-form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getServerUser } from "@/lib/auth/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function StremioConfigurePage() {
   const user = await getServerUser();
   const connected = user?.stremioConnected ?? false;
+  const manifestUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://syncx.tanishmajumdar2912.workers.dev"}/stremio/manifest.json`;
 
   return (
     <div className="container max-w-lg py-12 animate-fade-in">
@@ -30,7 +33,7 @@ export default async function StremioConfigurePage() {
             <CardHeader><CardTitle className="text-lg">Install Add-on</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">Click below to open Stremio and install the SyncX add-on.</p>
-              <Button asChild className="w-full"><a href="stremio:
+              <Button asChild className="w-full"><a href={`stremio://${manifestUrl.replace(/^https?:\/\//, "")}`}>Open in Stremio</a></Button>
             </CardContent>
           </Card>
           <Button asChild variant="ghost" size="sm"><Link href="/dashboard"><ArrowLeft className="h-4 w-4" />Back to Dashboard</Link></Button>

@@ -1,4 +1,3 @@
-import { WorkerMailer } from "worker-mailer";
 import { getEnv } from "@/lib/auth/env";
 
 export interface EmailPayload {
@@ -25,6 +24,10 @@ export async function sendEmail(
   }
 
   try {
+    const loadMailer = new Function("specifier", "return import(specifier)") as (
+      specifier: string
+    ) => Promise<typeof import("worker-mailer")>;
+    const { WorkerMailer } = await loadMailer("worker-mailer");
     await WorkerMailer.send(
       {
         host: "smtp.gmail.com",

@@ -43,7 +43,8 @@ export default async function CurrentlyWatchingPage() {
   const user = await getServerUser();
   if (!user) redirect("/");
 
-  const db = getDb(getCloudflareContext().env as CloudflareEnv);
+  const { env } = await getCloudflareContext({ async: true });
+  const db = getDb(env);
   const rows = await db
     .select({
       state: watchState,
@@ -55,16 +56,24 @@ export default async function CurrentlyWatchingPage() {
     .orderBy(desc(watchState.lastWatchedAt), desc(watchState.updatedAt))
     .all();
 
+  const metaCache = new Map<string, Awaited<ReturnType<typeof getMeta>>>();
+  const savedMedia = new Set<string>();
   for (const row of rows) {
     const imdbId = row.item.imdbId;
     if (!imdbId?.startsWith("tt")) continue;
-    if (row.item.title && row.item.title !== imdbId && row.item.posterUrl) continue;
-    const meta = await getMeta(imdbId, row.item.type === "movie" ? "movie" : "series").catch(() => null);
-    if (!meta) continue;
-    row.item.title = meta.name;
-    row.item.year = meta.year ? parseInt(meta.year, 10) || row.item.year : row.item.year;
-    row.item.posterUrl = meta.poster ?? row.item.posterUrl ?? posterUrl(imdbId);
-    row.item.status = meta.status ?? row.item.status;
+    if (row.item.posterUrl) continue;
+    const type = row.item.type === "movie" ? "movie" : "series";
+    const cacheKey = `${type}:${imdbId}`;
+    const meta = metaCache.has(cacheKey)
+      ? metaCache.get(cacheKey)
+      : await getMeta(imdbId, type).catch(() => null);
+    metaCache.set(cacheKey, meta ?? null);
+    row.item.title = meta?.name ?? row.item.title ?? imdbId;
+    row.item.year = meta?.year ? parseInt(meta.year, 10) || row.item.year : row.item.year;
+    row.item.posterUrl = meta?.poster ?? row.item.posterUrl ?? posterUrl(imdbId);
+    row.item.status = meta?.status ?? row.item.status;
+    if (savedMedia.has(row.item.id)) continue;
+    savedMedia.add(row.item.id);
     await db.update(media).set({
       title: row.item.title,
       year: row.item.year,
@@ -115,10 +124,11 @@ export default async function CurrentlyWatchingPage() {
       title: item.title,
       imdbId: item.imdbId,
       type: item.type,
+      posterUrl: item.posterUrl,
     },
   });
   const lazySeries = series.map(({ item, episodes, latest }) => ({
-    item: { id: item.id, title: item.title, imdbId: item.imdbId, type: item.type },
+    item: { id: item.id, title: item.title, imdbId: item.imdbId, type: item.type, posterUrl: item.posterUrl },
     episodes: episodes.map(serializeRow),
     latest: latest ? serializeRow(latest) : undefined,
   }));

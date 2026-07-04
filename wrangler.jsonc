@@ -5,6 +5,10 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"vars": {
+		"NEXT_PUBLIC_APP_URL": "https://syncx.tanishmajumdar2912.workers.dev",
+		"NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_ZnVubnktc3VuYmVhbS01MS5jbGVyay5hY2NvdW50cy5kZXYk"
+	},
 	// Serves the Next.js static assets (/_next/static/*: compiled CSS + JS chunks).
 	// OpenNext's worker looks up this binding by the name "ASSETS". Without it,
 	// every static request 404s and the app renders unstyled with no client JS.

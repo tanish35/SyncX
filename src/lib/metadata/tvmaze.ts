@@ -1,4 +1,4 @@
-const TVMAZE_BASE = "https:
+const TVMAZE_BASE = "https://api.tvmaze.com";
 
 export interface TVMazeEpisode {
   id: number;

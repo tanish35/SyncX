@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { StremioLibraryItem } from "./client";
 
-const STREMIO_API = "https:
+const STREMIO_API = "https://api.strem.io/api";
 
 function assertNotError(json: unknown, method: string): void {
   const parsed = z

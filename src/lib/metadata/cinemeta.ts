@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const CINEMETA_BASE = "https:
+const CINEMETA_BASE = "https://v3-cinemeta.strem.io";
 
 export interface EpisodeVideo {
   id: string;
@@ -19,6 +19,22 @@ export interface CinemetaMeta {
   videos?: EpisodeVideo[];
   status?: string;
 }
+
+const metaSchema: z.ZodType<CinemetaMeta> = z.object({
+  id: z.string(),
+  type: z.enum(["movie", "series"]),
+  name: z.string(),
+  poster: z.string().optional(),
+  year: z.string().optional(),
+  videos: z.array(z.object({
+    id: z.string(),
+    season: z.number(),
+    episode: z.number(),
+    title: z.string().optional(),
+    released: z.string().optional(),
+  })).optional(),
+  status: z.string().optional(),
+});
 
 export async function bulkVideoIds(
   imdbIds: string[],
@@ -68,5 +84,5 @@ export async function getMeta(
 
 
 export function posterUrl(imdbId: string): string {
-  return `https:
+  return `https://images.metahub.space/poster/medium/${imdbId}/img`;
 }

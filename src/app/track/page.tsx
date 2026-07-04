@@ -5,6 +5,8 @@ import TrackSearch from "./track-search";
 import { Button } from "@/components/ui/button";
 import { getServerUser } from "@/lib/auth/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function TrackPage() {
   const user = await getServerUser();
   if (!user) redirect("/");

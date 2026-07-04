@@ -164,6 +164,7 @@ function buildSubject(items: NotificationDigest[]): string {
 }
 
 function buildEmailHtml(items: NotificationDigest[]): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://syncx.tanishmajumdar2912.workers.dev";
   const rows = items
     .sort((a, b) => {
       
@@ -200,12 +201,12 @@ function buildEmailHtml(items: NotificationDigest[]): string {
       ${rows}
     </table>
     <div style="padding:16px 24px;text-align:center;">
-      <a href="https:
+      <a href="${appUrl}/calendar" style="display:inline-block;background:#6366f1;color:#fff;text-decoration:none;border-radius:6px;padding:10px 16px;font-size:14px;">Open SyncX</a>
     </div>
     <div style="padding:12px 24px;text-align:center;border-top:1px solid #eee;">
       <p style="margin:0;color:#999;font-size:11px;">
         You're receiving this because you enabled email notifications in SyncX.
-        <a href="https:
+        <a href="${appUrl}/settings" style="color:#6366f1;">Manage settings</a>
       </p>
     </div>
   </div>

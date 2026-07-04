@@ -27,7 +27,8 @@ export default async function CalendarPage() {
   const user = await getServerUser();
   if (!user) redirect("/");
 
-  const db = getDb(getCloudflareContext().env as CloudflareEnv);
+  const { env } = await getCloudflareContext({ async: true });
+  const db = getDb(env);
   const cutoff = new Date();
   cutoff.setHours(0, 0, 0, 0);
 

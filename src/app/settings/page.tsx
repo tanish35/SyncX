@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getServerUser } from "@/lib/auth/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const user = await getServerUser();
   if (!user) redirect("/");
@@ -27,7 +29,7 @@ export default async function SettingsPage() {
 
       <Card className="mb-4">
         <CardHeader><div className="flex items-center gap-2"><Bell className="h-5 w-5 text-primary" /><CardTitle className="text-lg">Automation</CardTitle></div></CardHeader>
-        <CardContent><SyncCronToggle enabled={user.syncCronEnabled} /></CardContent>
+        <CardContent><SyncCronToggle enabled={user.syncCronEnabled} mode={user.syncCronMode} /></CardContent>
       </Card>
 
       <Card className="mb-4">

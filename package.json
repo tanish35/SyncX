@@ -18,6 +18,7 @@
     "secrets": "echo 'Run: bunx wrangler secret put <NAME> for each in .dev.vars'"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.5.12",
     "@opennextjs/cloudflare": "^1.0.0",
     "@radix-ui/react-alert-dialog": "^1.1.18",
     "@radix-ui/react-avatar": "^1.2.1",
@@ -49,9 +50,12 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.5.2",
     "drizzle-kit": "^0.30.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.0.0",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.0.0",
     "typescript": "^5.7.0",
     "wrangler": "^4.0.0"

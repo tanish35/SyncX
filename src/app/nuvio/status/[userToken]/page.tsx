@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { getServerUser } from "@/lib/auth/server";
 import { formatIstDateTime } from "@/lib/time";
 
+export const dynamic = "force-dynamic";
+
 interface Props { params: Promise<{ userToken: string }> }
 
 export default async function NuvioStatusPage({ params }: Props) {

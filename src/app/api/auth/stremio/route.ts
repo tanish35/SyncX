@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getEnv } from "@/lib/api/utils";
+import { getEnv, requireSession } from "@/lib/api/utils";
 import { getDb } from "@/lib/db";
 import { users, connections } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { login, getUser } from "@/lib/stremio/client";
-import { createSessionCookie } from "@/lib/auth/session";
 import { encryptCredential } from "@/lib/crypto";
 
 export async function POST(request: NextRequest) {
+  const auth = await requireSession(request);
+  if ("error" in auth) return auth.error;
+  const { session } = auth;
+
   try {
     const body = await request.json();
     const { email, password, authKey: rawAuthKey } = body as {
@@ -36,34 +39,26 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date();
-    const existingUser = await db
+    const existingStremioUser = await db
       .select()
       .from(users)
       .where(eq(users.stremioUserId, stremioUser._id))
       .get();
 
-    let userId: string;
-
-    if (existingUser) {
-      userId = existingUser.id;
-      await db
-        .update(users)
-        .set({
-          email: stremioUser.email ?? existingUser.email,
-          updatedAt: now,
-        })
-        .where(eq(users.id, userId));
-    } else {
-      userId = crypto.randomUUID();
-      await db.insert(users).values({
-        id: userId,
-        stremioUserId: stremioUser._id,
-        email: stremioUser.email,
-        notifyEmails: true,
-        createdAt: now,
-        updatedAt: now,
-      });
+    if (existingStremioUser && existingStremioUser.id !== session.userId) {
+      return NextResponse.json(
+        { error: "This Stremio account is already connected to another SyncX user." },
+        { status: 409 },
+      );
     }
+
+    await db
+      .update(users)
+      .set({
+        stremioUserId: stremioUser._id,
+        updatedAt: now,
+      })
+      .where(eq(users.id, session.userId));
 
     const encryptedAuthKey = await encryptCredential(
       { authKey },
@@ -73,7 +68,7 @@ export async function POST(request: NextRequest) {
     const existingConn = await db
       .select()
       .from(connections)
-      .where(eq(connections.userId, userId))
+      .where(eq(connections.userId, session.userId))
       .all()
       .then((rows) => rows.find((c) => c.provider === "stremio"));
 
@@ -88,7 +83,7 @@ export async function POST(request: NextRequest) {
     } else {
       await db.insert(connections).values({
         id: crypto.randomUUID(),
-        userId,
+        userId: session.userId,
         provider: "stremio",
         credentials: encryptedAuthKey,
         createdAt: now,
@@ -96,18 +91,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const sessionCookie = await createSessionCookie(
-      { userId },
-      env.SESSION_SECRET,
-    );
-
-    const response = NextResponse.json({
+    return NextResponse.json({
       success: true,
-      redirect: "/dashboard",
+      redirect: "/stremio/configure",
     });
-    response.headers.set("Set-Cookie", sessionCookie);
-
-    return response;
   } catch (err) {
     console.error("Stremio auth error:", err);
     return NextResponse.json(

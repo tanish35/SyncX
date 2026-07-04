@@ -10,14 +10,17 @@ export async function PATCH(request: NextRequest) {
   const { session } = auth;
 
   try {
-    const { syncCronEnabled } = (await request.json()) as { syncCronEnabled?: boolean };
+    const { syncCronEnabled, syncCronMode } = (await request.json()) as { syncCronEnabled?: boolean; syncCronMode?: string };
     if (typeof syncCronEnabled !== "boolean") {
       return NextResponse.json({ error: "syncCronEnabled must be a boolean" }, { status: 400 });
+    }
+    if (syncCronMode !== "sync" && syncCronMode !== "pull") {
+      return NextResponse.json({ error: "syncCronMode must be sync or pull" }, { status: 400 });
     }
 
     await getDb(getEnv())
       .update(users)
-      .set({ syncCronEnabled, updatedAt: new Date() })
+      .set({ syncCronEnabled, syncCronMode, updatedAt: new Date() })
       .where(eq(users.id, session.userId));
 
     return NextResponse.json({ success: true });

@@ -2,11 +2,18 @@ import { sqliteTable, text, integer, uniqueIndex } from "drizzle-orm/sqlite-core
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
+  clerkUserId: text("clerkUserId").unique(),
   stremioUserId: text("stremioUserId").unique(),
   email: text("email"),
   notificationEmail: text("notificationEmail"),
+  approved: integer("approved", { mode: "boolean" }).notNull().default(false),
+  role: text("role").notNull().default("user"),
+  accessRequestedAt: integer("accessRequestedAt", { mode: "timestamp_ms" }),
+  accessRequestEmailedAt: integer("accessRequestEmailedAt", { mode: "timestamp_ms" }),
+  approvedAt: integer("approvedAt", { mode: "timestamp_ms" }),
   notifyEmails: integer("notifyEmails", { mode: "boolean" }).notNull().default(true),
   syncCronEnabled: integer("syncCronEnabled", { mode: "boolean" }).notNull().default(true),
+  syncCronMode: text("syncCronMode").notNull().default("sync"),
   createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
   updatedAt: integer("updatedAt", { mode: "timestamp_ms" }).notNull(),
 });

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const STREMIO_API = "https:
+const STREMIO_API = "https://api.strem.io/api";
 
 const stremioErrorSchema = z.object({
   error: z.object({

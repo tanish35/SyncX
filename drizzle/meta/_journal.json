@@ -22,6 +22,20 @@
       "when": 1783267500000,
       "tag": "0002_sync_cron_enabled",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1783270000000,
+      "tag": "0003_clerk_approval",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1783280000000,
+      "tag": "0004_sync_cron_mode",
+      "breakpoints": true
     }
   ]
 }

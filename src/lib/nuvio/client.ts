@@ -1,6 +1,7 @@
-const NUVIO_AUTH_BASE = "https:
-const NUVIO_REST_BASE = "https:
-const NUVIO_APIKEY = "sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN";
+const NUVIO_BASE = "https://api.nuvio.tv";
+const NUVIO_AUTH_BASE = `${NUVIO_BASE}/auth/v1`;
+const NUVIO_REST_BASE = `${NUVIO_BASE}/rest/v1`;
+const NUVIO_APIKEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNTIxMzQ2LCJleHAiOjE5MzkyMDEzNDZ9.tmQaj682pwzehpqlgCDMnySOqiUvpgRbrE43T4VJpDI";
 
 export interface NuvioTokens {
   accessToken: string;
@@ -52,12 +53,18 @@ export interface NuvioWatchedDelta {
   watched_at?: number;
 }
 
+export interface NuvioProfile {
+  profile_id: number;
+  profile_name: string;
+}
+
 function nuvioHeaders(accessToken?: string): Record<string, string> {
   const h: Record<string, string> = {
     apikey: NUVIO_APIKEY,
+    authorization: `Bearer ${accessToken ?? NUVIO_APIKEY}`,
     "content-type": "application/json",
+    "x-client-info": "SyncX",
   };
-  if (accessToken) h.authorization = `Bearer ${accessToken}`;
   return h;
 }
 

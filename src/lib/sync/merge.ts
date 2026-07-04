@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import { watchState, pushLog } from "../db/schema";
 import type { DrizzleDb } from "../db";
 

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { getServerUser } from "@/lib/auth/server";
 import { formatIstDateTime } from "@/lib/time";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const user = await getServerUser();
   if (!user) redirect("/");

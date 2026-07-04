@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Clock3 } from "lucide-react";
+import { Clock3, Film } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ type WatchRow = {
     title: string | null;
     imdbId: string | null;
     type: string;
+    posterUrl: string | null;
   };
 };
 
@@ -114,6 +115,18 @@ function MarkWatchedButton({ mediaId }: { mediaId: string }) {
   );
 }
 
+function PosterThumb({ item }: { item: WatchRow["item"] }) {
+  return (
+    <div className="flex aspect-[2/3] w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+      {item.posterUrl ? (
+        <img src={item.posterUrl} alt="" className="h-full w-full object-cover" />
+      ) : (
+        <Film className="h-5 w-5 text-muted-foreground" />
+      )}
+    </div>
+  );
+}
+
 function SeriesSection({ series, currentMediaId }: { series: SeriesGroup[]; currentMediaId: string | null }) {
   const { visible, sentinelRef } = useVisibleCount(series.length, SERIES_STEP);
   const shown = Math.min(visible, series.length);
@@ -128,7 +141,8 @@ function SeriesSection({ series, currentMediaId }: { series: SeriesGroup[]; curr
         {series.slice(0, shown).map(({ item, episodes, latest }) => (
           <Card key={item.id} className="overflow-hidden">
             <details open={currentMediaId === item.id}>
-              <summary className="grid cursor-pointer list-none gap-4 p-4 marker:hidden sm:grid-cols-[1fr_auto] sm:items-center">
+              <summary className="grid cursor-pointer list-none gap-4 p-4 marker:hidden sm:grid-cols-[3rem_1fr_auto] sm:items-center">
+                <PosterThumb item={item} />
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <CardTitle className="truncate text-base">{item.title ?? item.imdbId ?? "Untitled"}</CardTitle>
@@ -191,7 +205,8 @@ function MoviesSection({ movies }: { movies: WatchRow[] }) {
       <div className="grid gap-3">
         {movies.slice(0, shown).map(({ state, item }) => (
           <Card key={state.id}>
-            <CardContent className="grid gap-4 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+            <CardContent className="grid gap-4 p-4 sm:grid-cols-[3rem_1fr_auto] sm:items-center">
+              <PosterThumb item={item} />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <CardTitle className="truncate text-base">{item.title ?? item.imdbId ?? "Untitled"}</CardTitle>

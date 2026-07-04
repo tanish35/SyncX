@@ -145,7 +145,7 @@ export async function runSyncTick(env: CloudflareEnv): Promise<void> {
 
       let cursor: SyncCursor | null = null;
       for (let i = 0; i < MAX_STEPS_PER_CRON; i++) {
-        const r = await syncStep(user.id, env, cursor);
+        const r = await syncStep(user.id, env, cursor, user.syncCronMode === "pull" ? "pull" : "sync");
         if (r.done) break;
         cursor = r.cursor;
       }

@@ -1,28 +1,14 @@
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { users, connections } from "@/lib/db/schema";
-
-const COOKIE_NAME = "syncx_session";
+import { getOrCreateClerkUser } from "./clerk-user";
 
 export async function getServerSession(): Promise<{ userId: string } | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get(COOKIE_NAME);
-  if (!sessionCookie) return null;
-
-  const env = getCloudflareContext().env as CloudflareEnv;
-  const key = new TextEncoder().encode(env.SESSION_SECRET);
-
-  try {
-    const { payload } = await jwtVerify(sessionCookie.value, key);
-    const userId = payload.userId as string;
-    if (!userId) return null;
-    return { userId };
-  } catch {
-    return null;
-  }
+  const { env } = await getCloudflareContext({ async: true });
+  const user = await getOrCreateClerkUser(env);
+  if (!user?.approved) return null;
+  return { userId: user.id };
 }
 
 export interface ServerUser {
@@ -31,6 +17,9 @@ export interface ServerUser {
   notificationEmail: string | null;
   notifyEmails: boolean;
   syncCronEnabled: boolean;
+  syncCronMode: "sync" | "pull";
+  role: string;
+  approved: boolean;
   stremioConnected: boolean;
   nuvioConnected: boolean;
   lastSyncAt: Date | null;
@@ -38,16 +27,15 @@ export interface ServerUser {
 }
 
 export async function getServerUser(): Promise<ServerUser | null> {
-  const session = await getServerSession();
-  if (!session) return null;
-
-  const env = getCloudflareContext().env as CloudflareEnv;
+  const { env } = await getCloudflareContext({ async: true });
   const db = getDb(env);
+  const sessionUser = await getOrCreateClerkUser(env);
+  if (!sessionUser?.approved) return null;
 
   const user = await db
     .select()
     .from(users)
-    .where(eq(users.id, session.userId))
+    .where(eq(users.id, sessionUser.id))
     .get();
 
   if (!user) return null;
@@ -55,7 +43,7 @@ export async function getServerUser(): Promise<ServerUser | null> {
   const conns = await db
     .select()
     .from(connections)
-    .where(eq(connections.userId, session.userId))
+    .where(eq(connections.userId, sessionUser.id))
     .all();
 
   const stremioConn = conns.find((c) => c.provider === "stremio");
@@ -78,6 +66,9 @@ export async function getServerUser(): Promise<ServerUser | null> {
     notificationEmail: user.notificationEmail,
     notifyEmails: user.notifyEmails,
     syncCronEnabled: user.syncCronEnabled,
+    syncCronMode: user.syncCronMode === "pull" ? "pull" : "sync",
+    role: user.role,
+    approved: user.approved,
     stremioConnected: !!stremioConn,
     nuvioConnected: !!nuvioConn,
     lastSyncAt,
